@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="th" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบจัดการอุปกรณ์คอมพิวเตอร์</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .loading-spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body class="h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+  <header class="bg-white shadow-lg border-b-4 border-blue-500">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">ระบบจัดการอุปกรณ์คอมพิวเตอร์</h1>
+        <p class="text-sm text-gray-600 mt-1">บริษัท ABC จำกัด</p>
+      </div>
+      <div class="flex space-x-3">
+        <button id="nav-form" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">เพิ่มอุปกรณ์</button>
+        <button id="nav-report" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">รายงาน</button>
+        <button id="nav-dashboard" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">แดชบอร์ด</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Form Section -->
+    <div id="form-section" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-6">เพิ่มข้อมูลอุปกรณ์ใหม่</h2>
+      <form id="equipment-form" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block mb-1">ชื่ออุปกรณ์</label>
+            <input type="text" id="equipment-name" required class="w-full border px-4 py-2 rounded-lg" />
+          </div>
+          <div>
+            <label class="block mb-1">ประเภทอุปกรณ์</label>
+            <select id="equipment-type" required class="w-full border px-4 py-2 rounded-lg">
+              <option value="">เลือกประเภท</option>
+              <option value="Desktop">เครื่องคอมพิวเตอร์ตั้งโต๊ะ</option>
+              <option value="Laptop">แล็ปท็อป</option>
+              <option value="Monitor">จอภาพ</option>
+              <option value="Printer">เครื่องพิมพ์</option>
+              <option value="Server">เซิร์ฟเวอร์</option>
+              <option value="Network">อุปกรณ์เครือข่าย</option>
+              <option value="Other">อื่นๆ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-1">ผู้ใช้งาน</label>
+            <input type="text" id="user-name" required class="w-full border px-4 py-2 rounded-lg" />
+          </div>
+          <div>
+            <label class="block mb-1">แผนก</label>
+            <select id="department" required class="w-full border px-4 py-2 rounded-lg">
+              <option value="">เลือกแผนก</option>
+              <option value="IT">IT</option>
+              <option value="HR">ทรัพยากรบุคคล</option>
+              <option value="Finance">การเงิน</option>
+              <option value="Marketing">การตลาด</option>
+              <option value="Sales">ฝ่ายขาย</option>
+              <option value="Operations">ฝ่ายปฏิบัติการ</option>
+              <option value="Management">ฝ่ายบริหาร</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block mb-1">หมายเลขซีเรียล</label>
+            <input type="text" id="serial-number" required class="w-full border px-4 py-2 rounded-lg" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block mb-1">รูปภาพอุปกรณ์</label>
+            <input type="file" id="equipment-image" accept="image/*" class="w-full border px-4 py-2 rounded-lg" />
+            <div id="image-preview" class="mt-2 hidden">
+              <img id="preview-img" class="max-w-xs rounded-lg shadow-md" />
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" id="submit-btn"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center space-x-2 hover:bg-blue-700">
+            <span id="submit-text">บันทึกข้อมูล</span>
+            <div id="submit-spinner" class="loading-spinner hidden"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Report Section -->
+    <div id="report-section" class="hidden bg-white rounded-xl shadow-lg p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-6">รายงานอุปกรณ์</h2>
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">รูปภาพ</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ชื่ออุปกรณ์</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ประเภท</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ผู้ใช้งาน</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">แผนก</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ซีเรียล</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">วันที่เพิ่ม</th>
+          </tr>
+        </thead>
+        <tbody id="equipment-table" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = "YOUR_WEB_APP_URL_HERE"; // ใส่ URL จาก Google Apps Script
+
+    document.getElementById("equipment-image").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById("preview-img").src = event.target.result;
+          document.getElementById("image-preview").classList.remove("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById("equipment-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("submit-btn");
+      const submitText = document.getElementById("submit-text");
+      const submitSpinner = document.getElementById("submit-spinner");
+
+      submitBtn.disabled = true;
+      submitText.textContent = "กำลังบันทึก...";
+      submitSpinner.classList.remove("hidden");
+
+      const data = {
+        name: document.getElementById("equipment-name").value,
+        type: document.getElementById("equipment-type").value,
+        user: document.getElementById("user-name").value,
+        department: document.getElementById("department").value,
+        serial: document.getElementById("serial-number").value,
+        image: document.getElementById("preview-img").src || "",
+        date: new Date().toLocaleString("th-TH")
+      };
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.status === "success") {
+          alert("บันทึกข้อมูลสำเร็จ!");
+          e.target.reset();
+          document.getElementById("image-preview").classList.add("hidden");
+        } else {
+          alert("เกิดข้อผิดพลาด: " + result.message);
+        }
+      } catch (error) {
+        alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = "บันทึกข้อมูล";
+        submitSpinner.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
